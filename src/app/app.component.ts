@@ -1,6 +1,6 @@
 
 
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild} from '@angular/core';
 
 
   @Component({
@@ -12,7 +12,8 @@ import { AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular
 export class AppComponent implements OnInit, AfterViewInit {
   title = "Counter animation with angular"
 
-  
+  modalActivated: boolean = false;
+
   cAnimated:boolean = false;
   dAnimated:boolean = false;
   @ViewChild("a") a: any;
@@ -20,7 +21,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   @ViewChild("c") c: any;
   @ViewChild("d") d: any;
 
-  constructor(elRef: ElementRef ) { }
+  constructor(private elRef: ElementRef,private render: Renderer2) { }
 
   ngOnInit(): void {
   }
@@ -31,23 +32,26 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.animateValue(this.b, 0, 16, 1500);
     
     // Animate value c when scrolling
-    window.addEventListener("scroll", () => {
-      if (window.pageYOffset > 250) {
+    this.render.listen('window', 'scroll', () => {
+      let cPosition = this.c.nativeElement.getBoundingClientRect();
+      if (cPosition.top >= 0 && cPosition.bottom <= window.innerHeight) {
         if(this.cAnimated == false){
           this.animateValue(this.c, 0, 2300, 1500);
-          this.animateValue(this.d, 0, 3, 1500);
           this.cAnimated = true;
           }}
-    })
-
-    // Animate value d when scrolling
-    window.addEventListener("scroll", () => {
-      if (window.pageYOffset > 500) {
+      // Animate value d when scrolling
+      let dPosition = this.d.nativeElement.getBoundingClientRect();
+      if (dPosition.top >= 0 && dPosition.bottom <= window.innerHeight) {
         if(this.dAnimated == false){
           this.animateValue(this.d, 0, 3, 1500);
           this.dAnimated = true;
           }}
     })
+  }
+
+  toggleModal(){
+    this.modalActivated = !this.modalActivated;
+    console.log(this.modalActivated)
   }
 
  animateValue(obj, start, end, duration){
